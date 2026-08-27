@@ -257,11 +257,41 @@
             font-weight: 600;
         }
 
+      /* Configuración de Impresión Corregida */
         @media print {
-            .header-actions, .preset-btns, .price-input { border: none !important; display: none !important; }
-            body { background: #fff; color: #000; }
-            .card, .kpi-card { border: 1px solid #ccc; background: #fff; }
-            .kpi-value, .brand-title h1, .card h2 { color: #000; }
+            /* Ocultar solo los botones que no se necesitan en papel */
+            .header-actions, .preset-btns { 
+                display: none !important; 
+            }
+            
+            body { 
+                background: #fff !important; 
+                color: #000 !important; 
+                padding: 0 !important;
+            }
+            
+            .card, .kpi-card { 
+                border: 1px solid #ddd !important; 
+                background: #fff !important; 
+                box-shadow: none !important;
+            }
+            
+            .kpi-value, .brand-title h1, .card h2, td, th, label { 
+                color: #000 !important; 
+            }
+
+            /* Forzar a que los valores dentro de las cajas de precio se vean en negro y sin marco */
+            input[type="number"], .price-input {
+                color: #000 !important;
+                background: transparent !important;
+                border: none !important;
+                font-weight: 700 !important;
+                font-size: 0.9rem !important;
+                width: auto !important;
+                -webkit-appearance: none;
+                -moz-appearance: textfield;
+            }
+        }
         }
     </style>
 </head>
