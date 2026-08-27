@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Margenes & Costos | Ámbar & Hielo Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #12100E;
+            --bg-card: #1D1A17;
+            --bg-input: #141210;
+            --terracotta: #C85A32;
+            --terracotta-hover: #D96B43;
+            --amber: #E5A93C;
+            --beige: #F3EFE0;
+            --text-light: #F9F8F6;
+            --text-muted: #A69F96;
+            --border-color: rgba(200, 90, 50, 0.25);
+            --border-light: rgba(243, 239, 224, 0.1);
+            --green: #2e7d32;
+            --green-light: #4caf50;
+            --font-heading: 'Cormorant Garamond', serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            padding: 20px 10px;
+            line-height: 1.5;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .brand-title h1 {
+            font-family: var(--font-heading);
+            font-size: 2.2rem;
+            color: var(--beige);
+            line-height: 1;
+        }
+
+        .brand-title p {
+            color: var(--amber);
+            font-size: 0.85rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .btn-print {
+            background: var(--terracotta);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-print:hover { background: var(--terracotta-hover); }
+
+        /* KPI Dashboard Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .kpi-card.highlight {
+            border-color: var(--amber);
+            background: linear-gradient(145deg, #25201C, #1A1715);
+        }
+
+        .kpi-card.profit {
+            border-color: var(--green-light);
+        }
+
+        .kpi-title {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--beige);
+            font-family: var(--font-heading);
+        }
+
+        .kpi-subtext {
+            font-size: 0.8rem;
+            color: var(--amber);
+            margin-top: 4px;
+        }
+
+        /* Controls Section */
+        .section-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .section-grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 25px;
+        }
+
+        .card h2 {
+            font-family: var(--font-heading);
+            font-size: 1.5rem;
+            color: var(--beige);
+            margin-bottom: 15px;
+            border-bottom: 1px dashed var(--border-light);
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-family: var(--font-body);
+            font-size: 1rem;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: var(--terracotta);
+        }
+
+        .preset-btns {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .preset-btn {
+            background: var(--bg-input);
+            border: 1px solid var(--border-light);
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .preset-btn:hover, .preset-btn.active {
+            border-color: var(--terracotta);
+            color: var(--terracotta);
+            background: rgba(200, 90, 50, 0.1);
+        }
+
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--beige);
+            padding: 12px 10px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-light);
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .price-input {
+            width: 90px !important;
+            padding: 6px 8px !important;
+            font-size: 0.85rem !important;
+        }
+
+        .tag-cat {
+            font-size: 0.72rem;
+            padding: 3px 8px;
+            border-radius: 10px;
+            background: rgba(229, 169, 60, 0.12);
+            color: var(--amber);
+            font-weight: 600;
+        }
+
+        /* Print Media Query */
+        @media print {
+            .btn-print, .preset-btns, .price-input { border: none !important; }
+            body { background: #fff; color: #000; }
+            .card, .kpi-card { border: 1px solid #ccc; background: #fff; }
+            .kpi-value, .brand-title h1, .card h2 { color: #000; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="admin-container">
+    <header>
+        <div class="brand-title">
+            <h1>ÁMBAR & HIELO</h1>
+            <p>Calculador Administrativo de Costos & Márgenes</p>
+        </div>
+        <button class="btn-print" onclick="window.print()">Exportar / Imprimir Reporte</button>
+    </header>
+
+    <!-- METRICAS CLAVE -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-title">Ingreso Estimado</div>
+            <div class="kpi-value" id="kpi-revenue">$0.00</div>
+            <div class="kpi-subtext" id="kpi-price-per-drink">$0/trago</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-title">Costo Insumos (Bodega Aurrera)</div>
+            <div class="kpi-value" id="kpi-insumos-cost">$0.00</div>
+            <div class="kpi-subtext" id="kpi-cost-per-drink">Escandallo: $0.00/trago</div>
+        </div>
+
+        <div class="kpi-card">
+            <div class="kpi-title">Margen Bruto (Insumos)</div>
+            <div class="kpi-value" id="kpi-gross-margin">0%</div>
+            <div class="kpi-subtext" id="kpi-gross-profit">Ganancia: $0.00</div>
+        </div>
+
+        <div class="kpi-card profit highlight">
+            <div class="kpi-title">Utilidad Neta Libre</div>
+            <div class="kpi-value" id="kpi-net-profit" style="color: var(--green-light);">$0.00</div>
+            <div class="kpi-subtext" id="kpi-net-margin">Margen Neto: 0%</div>
+        </div>
+    </div>
+
+    <!-- PARAMETROS DE CONTROL -->
+    <div class="section-grid">
+        <div class="card">
+            <h2>1. Parámetros del Evento</h2>
+            <div class="form-group">
+                <label for="numCocktails">Cantidad de Cócteles a Servir:</label>
+                <input type="number" id="numCocktails" value="100" min="10" step="5" oninput="calculateAll()">
+                <div class="preset-btns">
+                    <button class="preset-btn" onclick="setCocktails(50)">50 tragos</button>
+                    <button class="preset-btn" onclick="setCocktails(100)">100 tragos</button>
+                    <button class="preset-btn" onclick="setCocktails(150)">150 tragos</button>
+                    <button class="preset-btn" onclick="setCocktails(200)">200 tragos</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="pricePerDrink">Precio de Venta por Cóctel (MXN):</label>
+                <input type="number" id="pricePerDrink" value="105" min="30" step="5" oninput="calculateAll()">
+                <div class="preset-btns">
+                    <button class="preset-btn" onclick="setPrice(85)">$85 (Económico)</button>
+                    <button class="preset-btn" onclick="setPrice(105)">$105 (Estándar)</button>
+                    <button class="preset-btn" onclick="setPrice(130)">$130 (Premium)</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>2. Gastos Operativos por Evento</h2>
+            <div class="form-group">
+                <label for="opsStaff">Sueldo Bartenders / Personal (MXN):</label>
+                <input type="number" id="opsStaff" value="800" min="0" step="50" oninput="calculateAll()">
+            </div>
+            <div class="form-group">
+                <label for="opsFreight">Flete / Traslado en Delicias (MXN):</label>
+                <input type="number" id="opsFreight" value="300" min="0" step="50" oninput="calculateAll()">
+            </div>
+            <div class="form-group">
+                <label for="opsExtras">Mantenimiento / Hielo Extra / Imprevistos (MXN):</label>
+                <input type="number" id="opsExtras" value="200" min="0" step="50" oninput="calculateAll()">
+            </div>
+        </div>
+    </div>
+
+    <!-- TABLA DE INSUMOS -->
+    <div class="card">
+        <h2>3. Lista de Compras Dinámica & Costos Base (Bodega Aurrera)</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Puedes modificar los precios unitarios si cambian en tienda. Los cálculos se actualizarán en automático.</p>
+        
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Categoría</th>
+                        <th>Insumo</th>
+                        <th>Presentación</th>
+                        <th>Precio Unitario (Aurrera)</th>
+                        <th>Cant. Requerida</th>
+                        <th>Subtotal Estimado</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsTableBody">
+                    <!-- Filas generadas dinámicamente con JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// Base de datos de insumos (Base calculada para lote de 100 cócteles)
+const baseItems = [
+    { cat: "Destilados", name: "Tequila Reposado / Blanco (Cabrito/Jimador)", size: "950 ml", price: 230, baseQty: 2, unit: "botellas" },
+    { cat: "Destilados", name: "Sotol Regional / Mezcal", size: "750 ml", price: 280, baseQty: 2, unit: "botellas" },
+    { cat: "Destilados", name: "Ron Blanco (Ej. Bacardí)", size: "750 ml", price: 190, baseQty: 2, unit: "botellas" },
+    { cat: "Destilados", name: "Vodka (Ej. Smirnoff / Karat)", size: "750 ml", price: 185, baseQty: 1, unit: "botellas" },
+    { cat: "Mezcladores", name: "Agua Mineral (Peñafiel / Topo Chico)", size: "2 L", price: 28, baseQty: 6, unit: "piezas" },
+    { cat: "Mezcladores", name: "Refresco Toronja / Cola (Squirt/Coca)", size: "2.5 L", price: 34, baseQty: 4, unit: "piezas" },
+    { cat: "Mezcladores", name: "Jugos (Jumex Único Fresco/Cándido)", size: "1 L", price: 32, baseQty: 5, unit: "piezas" },
+    { cat: "Jarabe/Extras", name: "Jarabe Natural / Granadina", size: "1 L", price: 55, baseQty: 2, unit: "botellas" },
+    { cat: "Perecederos", name: "Limón con semilla", size: "1 kg", price: 38, baseQty: 4, unit: "kg" },
+    { cat: "Perecederos", name: "Naranja / Toronja (Garnish)", size: "1 kg", price: 28, baseQty: 3, unit: "kg" },
+    { cat: "Perecederos", name: "Hierbabuena / Menta fresca", size: "Manojo", price: 20, baseQty: 3, unit: "manojos" },
+    { cat: "Consumibles", name: "Bolsa de Hielo", size: "5 kg", price: 32, baseQty: 6, unit: "bolsas" },
+    { cat: "Desechables", name: "Vaso Plástico Transparente 14-16 oz", size: "Paq. 50 pzas", price: 85, baseQty: 2, unit: "paquetes" },
+    { cat: "Desechables", name: "Popotes biodegradables / Agitadores", size: "Paq. 100 pzas", price: 45, baseQty: 1, unit: "paquetes" },
+    { cat: "Desechables", name: "Servilletas de papel", size: "Paq. 200 pzas", price: 28, baseQty: 1, unit: "paquetes" }
+];
+
+// Inicializar la tabla al cargar la página
+function initTable() {
+    const tbody = document.getElementById('itemsTableBody');
+    tbody.innerHTML = '';
+
+    baseItems.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><span class="tag-cat">${item.cat}</span></td>
+            <td><strong>${item.name}</strong></td>
+            <td>${item.size}</td>
+            <td>$ <input type="number" class="price-input" id="price-${index}" value="${item.price}" min="0" oninput="calculateAll()"></td>
+            <td id="qty-${index}">0</td>
+            <td id="subtotal-${index}" style="font-weight:600;">$0.00</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    calculateAll();
+}
+
+function setCocktails(val) {
+    document.getElementById('numCocktails').value = val;
+    calculateAll();
+}
+
+function setPrice(val) {
+    document.getElementById('pricePerDrink').value = val;
+    calculateAll();
+}
+
+function calculateAll() {
+    const numCocktails = parseFloat(document.getElementById('numCocktails').value) || 0;
+    const pricePerDrink = parseFloat(document.getElementById('pricePerDrink').value) || 0;
+    
+    // Gastos Operativos
+    const opsStaff = parseFloat(document.getElementById('opsStaff').value) || 0;
+    const opsFreight = parseFloat(document.getElementById('opsFreight').value) || 0;
+    const opsExtras = parseFloat(document.getElementById('opsExtras').value) || 0;
+    const totalOps = opsStaff + opsFreight + opsExtras;
+
+    const factor = numCocktails / 100; // Escalado basado en 100 tragos base
+    let totalInsumos = 0;
+
+    // Recorrer items y calcular cantidades y subtotales
+    baseItems.forEach((item, index) => {
+        const currentPrice = parseFloat(document.getElementById(`price-${index}`).value) || 0;
+        
+        // Cantidad escalada (redondeada hacia arriba para botellas/paquetes)
+        let neededQty = item.baseQty * factor;
+        if (item.unit === "botellas" || item.unit === "paquetes" || item.unit === "bolsas") {
+            neededQty = Math.ceil(neededQty);
+        } else {
+            neededQty = Math.round(neededQty * 10) / 10; // 1 decimal para kg
+        }
+
+        const subtotal = neededQty * currentPrice;
+        totalInsumos += subtotal;
+
+        document.getElementById(`qty-${index}`).innerText = `${neededQty} ${item.unit}`;
+        document.getElementById(`subtotal-${index}`).innerText = `$${subtotal.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    });
+
+    // Cálculos Financieros
+    const totalRevenue = numCocktails * pricePerDrink;
+    const costPerDrink = numCocktails > 0 ? (totalInsumos / numCocktails) : 0;
+    
+    const grossProfit = totalRevenue - totalInsumos;
+    const grossMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
+
+    const totalCost = totalInsumos + totalOps;
+    const netProfit = totalRevenue - totalCost;
+    const netMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
+
+    // Actualizar KPIs en la interfaz
+    document.getElementById('kpi-revenue').innerText = `$${totalRevenue.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
+    document.getElementById('kpi-price-per-drink').innerText = `$${pricePerDrink.toFixed(2)} por trago`;
+
+    document.getElementById('kpi-insumos-cost').innerText = `$${totalInsumos.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
+    document.getElementById('kpi-cost-per-drink').innerText = `Escandallo: $${costPerDrink.toFixed(2)}/trago`;
+
+    document.getElementById('kpi-gross-margin').innerText = `${grossMargin.toFixed(1)}%`;
+    document.getElementById('kpi-gross-profit').innerText = `Ganancia: $${grossProfit.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
+
+    document.getElementById('kpi-net-profit').innerText = `$${netProfit.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
+    document.getElementById('kpi-net-margin').innerText = `Margen Neto Libre: ${netMargin.toFixed(1)}%`;
+}
+
+// Cargar la app al abrir
+window.onload = initTable;
+</script>
+
+</body>
+</html>
