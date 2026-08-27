@@ -2,11 +2,22 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Margenes & Costos | Ámbar & Hielo Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ámbar & Hielo Admin</title>
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#12100E">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ámbar Admin">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%2312100E'/><path d='M256 100 L380 380 L132 380 Z' fill='%23C85A32'/><circle cx='256' cy='220' r='50' fill='%23E5A93C'/></svg>">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --bg-dark: #12100E;
@@ -18,9 +29,7 @@
             --beige: #F3EFE0;
             --text-light: #F9F8F6;
             --text-muted: #A69F96;
-            --border-color: rgba(200, 90, 50, 0.25);
             --border-light: rgba(243, 239, 224, 0.1);
-            --green: #2e7d32;
             --green-light: #4caf50;
             --font-heading: 'Cormorant Garamond', serif;
             --font-body: 'Plus Jakarta Sans', sans-serif;
@@ -33,6 +42,7 @@
             color: var(--text-light);
             padding: 20px 10px;
             line-height: 1.5;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .admin-container {
@@ -53,30 +63,44 @@
 
         .brand-title h1 {
             font-family: var(--font-heading);
-            font-size: 2.2rem;
+            font-size: 2rem;
             color: var(--beige);
             line-height: 1;
         }
 
         .brand-title p {
             color: var(--amber);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             letter-spacing: 1.5px;
             text-transform: uppercase;
             font-weight: 600;
         }
 
-        .btn-print {
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
             background: var(--terracotta);
             color: #fff;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 16px;
             border-radius: 30px;
             font-weight: 600;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.2s ease;
         }
-        .btn-print:hover { background: var(--terracotta-hover); }
+        .btn:hover { background: var(--terracotta-hover); }
+        .btn-secondary { background: rgba(243, 239, 224, 0.1); color: var(--beige); }
+        .btn-secondary:hover { background: rgba(243, 239, 224, 0.2); }
+
+        #btnInstall {
+            display: none;
+            background: var(--amber);
+            color: #000;
+        }
 
         /* KPI Dashboard Grid */
         .kpi-grid {
@@ -91,16 +115,11 @@
             border: 1px solid var(--border-light);
             border-radius: 16px;
             padding: 20px;
-            position: relative;
         }
 
         .kpi-card.highlight {
             border-color: var(--amber);
             background: linear-gradient(145deg, #25201C, #1A1715);
-        }
-
-        .kpi-card.profit {
-            border-color: var(--green-light);
         }
 
         .kpi-title {
@@ -140,7 +159,7 @@
             background: var(--bg-card);
             border: 1px solid var(--border-light);
             border-radius: 16px;
-            padding: 25px;
+            padding: 20px;
         }
 
         .card h2 {
@@ -152,21 +171,13 @@
             padding-bottom: 8px;
         }
 
-        .form-group {
-            margin-bottom: 15px;
-        }
+        .form-group { margin-bottom: 15px; }
 
         .form-group label {
             display: block;
-            font-size: 0.88rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
             margin-bottom: 6px;
-        }
-
-        .input-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
         }
 
         input[type="number"] {
@@ -189,6 +200,7 @@
             display: flex;
             gap: 8px;
             margin-top: 8px;
+            flex-wrap: wrap;
         }
 
         .preset-btn {
@@ -199,24 +211,20 @@
             border-radius: 20px;
             font-size: 0.8rem;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
 
-        .preset-btn:hover, .preset-btn.active {
+        .preset-btn:hover {
             border-color: var(--terracotta);
             color: var(--terracotta);
-            background: rgba(200, 90, 50, 0.1);
         }
 
         /* Table Styles */
-        .table-responsive {
-            overflow-x: auto;
-        }
+        .table-responsive { overflow-x: auto; }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             text-align: left;
         }
 
@@ -234,18 +242,14 @@
             color: var(--text-light);
         }
 
-        tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
         .price-input {
-            width: 90px !important;
+            width: 85px !important;
             padding: 6px 8px !important;
             font-size: 0.85rem !important;
         }
 
         .tag-cat {
-            font-size: 0.72rem;
+            font-size: 0.7rem;
             padding: 3px 8px;
             border-radius: 10px;
             background: rgba(229, 169, 60, 0.12);
@@ -253,9 +257,8 @@
             font-weight: 600;
         }
 
-        /* Print Media Query */
         @media print {
-            .btn-print, .preset-btns, .price-input { border: none !important; }
+            .header-actions, .preset-btns, .price-input { border: none !important; display: none !important; }
             body { background: #fff; color: #000; }
             .card, .kpi-card { border: 1px solid #ccc; background: #fff; }
             .kpi-value, .brand-title h1, .card h2 { color: #000; }
@@ -268,9 +271,12 @@
     <header>
         <div class="brand-title">
             <h1>ÁMBAR & HIELO</h1>
-            <p>Calculador Administrativo de Costos & Márgenes</p>
+            <p>Calculador Administrativo</p>
         </div>
-        <button class="btn-print" onclick="window.print()">Exportar / Imprimir Reporte</button>
+        <div class="header-actions">
+            <button id="btnInstall" class="btn" onclick="installApp()">📲 Instalar App</button>
+            <button class="btn btn-secondary" onclick="window.print()"> Imprimir</button>
+        </div>
     </header>
 
     <!-- METRICAS CLAVE -->
@@ -282,7 +288,7 @@
         </div>
 
         <div class="kpi-card">
-            <div class="kpi-title">Costo Insumos (Bodega Aurrera)</div>
+            <div class="kpi-title">Costo Insumos (Aurrera)</div>
             <div class="kpi-value" id="kpi-insumos-cost">$0.00</div>
             <div class="kpi-subtext" id="kpi-cost-per-drink">Escandallo: $0.00/trago</div>
         </div>
@@ -293,7 +299,7 @@
             <div class="kpi-subtext" id="kpi-gross-profit">Ganancia: $0.00</div>
         </div>
 
-        <div class="kpi-card profit highlight">
+        <div class="kpi-card highlight">
             <div class="kpi-title">Utilidad Neta Libre</div>
             <div class="kpi-value" id="kpi-net-profit" style="color: var(--green-light);">$0.00</div>
             <div class="kpi-subtext" id="kpi-net-margin">Margen Neto: 0%</div>
@@ -337,7 +343,7 @@
                 <input type="number" id="opsFreight" value="300" min="0" step="50" oninput="calculateAll()">
             </div>
             <div class="form-group">
-                <label for="opsExtras">Mantenimiento / Hielo Extra / Imprevistos (MXN):</label>
+                <label for="opsExtras">Mantenimiento / Hielo Extra (MXN):</label>
                 <input type="number" id="opsExtras" value="200" min="0" step="50" oninput="calculateAll()">
             </div>
         </div>
@@ -345,9 +351,7 @@
 
     <!-- TABLA DE INSUMOS -->
     <div class="card">
-        <h2>3. Lista de Compras Dinámica & Costos Base (Bodega Aurrera)</h2>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Puedes modificar los precios unitarios si cambian en tienda. Los cálculos se actualizarán en automático.</p>
-        
+        <h2>3. Lista de Compras Dinámica & Precios Base</h2>
         <div class="table-responsive">
             <table>
                 <thead>
@@ -355,21 +359,18 @@
                         <th>Categoría</th>
                         <th>Insumo</th>
                         <th>Presentación</th>
-                        <th>Precio Unitario (Aurrera)</th>
+                        <th>Precio Unitario</th>
                         <th>Cant. Requerida</th>
-                        <th>Subtotal Estimado</th>
+                        <th>Subtotal</th>
                     </tr>
                 </thead>
-                <tbody id="itemsTableBody">
-                    <!-- Filas generadas dinámicamente con JavaScript -->
-                </tbody>
+                <tbody id="itemsTableBody"></tbody>
             </table>
         </div>
     </div>
 </div>
 
 <script>
-// Base de datos de insumos (Base calculada para lote de 100 cócteles)
 const baseItems = [
     { cat: "Destilados", name: "Tequila Reposado / Blanco (Cabrito/Jimador)", size: "950 ml", price: 230, baseQty: 2, unit: "botellas" },
     { cat: "Destilados", name: "Sotol Regional / Mezcal", size: "750 ml", price: 280, baseQty: 2, unit: "botellas" },
@@ -388,11 +389,9 @@ const baseItems = [
     { cat: "Desechables", name: "Servilletas de papel", size: "Paq. 200 pzas", price: 28, baseQty: 1, unit: "paquetes" }
 ];
 
-// Inicializar la tabla al cargar la página
 function initTable() {
     const tbody = document.getElementById('itemsTableBody');
     tbody.innerHTML = '';
-
     baseItems.forEach((item, index) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -405,43 +404,29 @@ function initTable() {
         `;
         tbody.appendChild(tr);
     });
-
     calculateAll();
 }
 
-function setCocktails(val) {
-    document.getElementById('numCocktails').value = val;
-    calculateAll();
-}
-
-function setPrice(val) {
-    document.getElementById('pricePerDrink').value = val;
-    calculateAll();
-}
+function setCocktails(val) { document.getElementById('numCocktails').value = val; calculateAll(); }
+function setPrice(val) { document.getElementById('pricePerDrink').value = val; calculateAll(); }
 
 function calculateAll() {
     const numCocktails = parseFloat(document.getElementById('numCocktails').value) || 0;
     const pricePerDrink = parseFloat(document.getElementById('pricePerDrink').value) || 0;
-    
-    // Gastos Operativos
     const opsStaff = parseFloat(document.getElementById('opsStaff').value) || 0;
     const opsFreight = parseFloat(document.getElementById('opsFreight').value) || 0;
     const opsExtras = parseFloat(document.getElementById('opsExtras').value) || 0;
-    const totalOps = opsStaff + opsFreight + opsExtras;
-
-    const factor = numCocktails / 100; // Escalado basado en 100 tragos base
+    
+    const factor = numCocktails / 100;
     let totalInsumos = 0;
 
-    // Recorrer items y calcular cantidades y subtotales
     baseItems.forEach((item, index) => {
         const currentPrice = parseFloat(document.getElementById(`price-${index}`).value) || 0;
-        
-        // Cantidad escalada (redondeada hacia arriba para botellas/paquetes)
         let neededQty = item.baseQty * factor;
         if (item.unit === "botellas" || item.unit === "paquetes" || item.unit === "bolsas") {
             neededQty = Math.ceil(neededQty);
         } else {
-            neededQty = Math.round(neededQty * 10) / 10; // 1 decimal para kg
+            neededQty = Math.round(neededQty * 10) / 10;
         }
 
         const subtotal = neededQty * currentPrice;
@@ -451,32 +436,51 @@ function calculateAll() {
         document.getElementById(`subtotal-${index}`).innerText = `$${subtotal.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
     });
 
-    // Cálculos Financieros
     const totalRevenue = numCocktails * pricePerDrink;
     const costPerDrink = numCocktails > 0 ? (totalInsumos / numCocktails) : 0;
-    
     const grossProfit = totalRevenue - totalInsumos;
     const grossMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
-
-    const totalCost = totalInsumos + totalOps;
+    const totalCost = totalInsumos + opsStaff + opsFreight + opsExtras;
     const netProfit = totalRevenue - totalCost;
     const netMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
 
-    // Actualizar KPIs en la interfaz
     document.getElementById('kpi-revenue').innerText = `$${totalRevenue.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
     document.getElementById('kpi-price-per-drink').innerText = `$${pricePerDrink.toFixed(2)} por trago`;
-
     document.getElementById('kpi-insumos-cost').innerText = `$${totalInsumos.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
     document.getElementById('kpi-cost-per-drink').innerText = `Escandallo: $${costPerDrink.toFixed(2)}/trago`;
-
     document.getElementById('kpi-gross-margin').innerText = `${grossMargin.toFixed(1)}%`;
     document.getElementById('kpi-gross-profit').innerText = `Ganancia: $${grossProfit.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
-
     document.getElementById('kpi-net-profit').innerText = `$${netProfit.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
     document.getElementById('kpi-net-margin').innerText = `Margen Neto Libre: ${netMargin.toFixed(1)}%`;
 }
 
-// Cargar la app al abrir
+// Service Worker & PWA Logic
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(reg => console.log('PWA lista')).catch(err => console.log('SW Error:', err));
+    });
+}
+
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const btn = document.getElementById('btnInstall');
+    if (btn) btn.style.display = 'inline-block';
+});
+
+function installApp() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+            if (choiceResult.outcome === 'accepted') {
+                document.getElementById('btnInstall').style.display = 'none';
+            }
+            deferredPrompt = null;
+        });
+    }
+}
+
 window.onload = initTable;
 </script>
 
