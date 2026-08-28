@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ámbar & Hielo Admin</title>
+    <title>Ámbar & Hielo Admin | Calculador de Costos</title>
     
     <!-- PWA Meta Tags -->
     <link rel="manifest" href="manifest.json">
@@ -13,6 +13,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Ámbar Admin">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%2312100E'/><path d='M256 100 L380 380 L132 380 Z' fill='%23C85A32'/><circle cx='256' cy='220' r='50' fill='%23E5A93C'/></svg>">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%2312100E'/><path d='M256 100 L380 380 L132 380 Z' fill='%23C85A32'/><circle cx='256' cy='220' r='50' fill='%23E5A93C'/></svg>">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,6 +32,7 @@
             --text-muted: #A69F96;
             --border-light: rgba(243, 239, 224, 0.1);
             --green-light: #4caf50;
+            --red-light: #ef5350;
             --font-heading: 'Cormorant Garamond', serif;
             --font-body: 'Plus Jakarta Sans', sans-serif;
         }
@@ -135,12 +137,14 @@
             font-weight: 700;
             color: var(--beige);
             font-family: var(--font-heading);
+            transition: color 0.3s ease;
         }
 
         .kpi-subtext {
             font-size: 0.8rem;
             color: var(--amber);
             margin-top: 4px;
+            transition: color 0.3s ease;
         }
 
         /* Controls Section */
@@ -174,21 +178,35 @@
         .form-group { margin-bottom: 15px; }
 
         .form-group label {
-            display: block;
+            display: flex;
+            justify-content: space-between;
             font-size: 0.85rem;
             color: var(--text-muted);
             margin-bottom: 6px;
         }
 
-        input[type="number"] {
+        .form-group label strong {
+            color: var(--amber);
+        }
+
+        input[type="number"], input[type="range"] {
             width: 100%;
-            padding: 10px 14px;
             background: var(--bg-input);
             border: 1px solid var(--border-light);
             border-radius: 8px;
             color: var(--text-light);
             font-family: var(--font-body);
+        }
+
+        input[type="number"] {
+            padding: 10px 14px;
             font-size: 1rem;
+        }
+
+        input[type="range"] {
+            accent-color: var(--terracotta);
+            height: 8px;
+            cursor: pointer;
         }
 
         input[type="number"]:focus {
@@ -207,16 +225,35 @@
             background: var(--bg-input);
             border: 1px solid var(--border-light);
             color: var(--text-muted);
-            padding: 6px 12px;
+            padding: 8px 14px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             cursor: pointer;
+            transition: all 0.2s ease;
         }
 
-        .preset-btn:hover {
+        .preset-btn.active, .preset-btn:hover {
             border-color: var(--terracotta);
-            color: var(--terracotta);
+            color: #fff;
+            background: var(--terracotta);
         }
+
+        .summary-box {
+            background: rgba(229, 169, 60, 0.05);
+            border: 1px solid rgba(229, 169, 60, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.88rem;
+            margin-bottom: 8px;
+        }
+
+        .summary-item:last-child { margin-bottom: 0; }
 
         /* Table Styles */
         .table-responsive { overflow-x: auto; }
@@ -257,30 +294,24 @@
             font-weight: 600;
         }
 
-      /* Configuración de Impresión Corregida */
+        /* Configuración de Impresión */
         @media print {
-            /* Ocultar solo los botones que no se necesitan en papel */
-            .header-actions, .preset-btns { 
+            .header-actions, .preset-btns, input[type="range"] { 
                 display: none !important; 
             }
-            
             body { 
                 background: #fff !important; 
                 color: #000 !important; 
                 padding: 0 !important;
             }
-            
             .card, .kpi-card { 
                 border: 1px solid #ddd !important; 
                 background: #fff !important; 
                 box-shadow: none !important;
             }
-            
-            .kpi-value, .brand-title h1, .card h2, td, th, label { 
+            .kpi-value, .brand-title h1, .card h2, td, th, label, .summary-item span, .summary-item strong { 
                 color: #000 !important; 
             }
-
-            /* Forzar a que los valores dentro de las cajas de precio se vean en negro y sin marco */
             input[type="number"], .price-input {
                 color: #000 !important;
                 background: transparent !important;
@@ -292,7 +323,6 @@
                 -moz-appearance: textfield;
             }
         }
-        }
     </style>
 </head>
 <body>
@@ -301,79 +331,109 @@
     <header>
         <div class="brand-title">
             <h1>ÁMBAR & HIELO</h1>
-            <p>Calculador Administrativo</p>
+            <p>Calculador Administrativo de Cotizaciones</p>
         </div>
         <div class="header-actions">
             <button id="btnInstall" class="btn" onclick="installApp()">📲 Instalar App</button>
-            <button class="btn btn-secondary" onclick="window.print()"> Imprimir</button>
+            <button class="btn btn-secondary" onclick="window.print()">🖨️ Imprimir Reporte</button>
         </div>
     </header>
 
     <!-- METRICAS CLAVE -->
     <div class="kpi-grid">
         <div class="kpi-card">
-            <div class="kpi-title">Ingreso Estimado</div>
+            <div class="kpi-title">Inversión Cliente (Venta Web)</div>
             <div class="kpi-value" id="kpi-revenue">$0.00</div>
-            <div class="kpi-subtext" id="kpi-price-per-drink">$0/trago</div>
+            <div class="kpi-subtext" id="kpi-price-per-drink">$0.00/trago</div>
         </div>
 
         <div class="kpi-card">
-            <div class="kpi-title">Costo Insumos (Aurrera)</div>
+            <div class="kpi-title">Costo Insumos (Bodega Aurrera)</div>
             <div class="kpi-value" id="kpi-insumos-cost">$0.00</div>
             <div class="kpi-subtext" id="kpi-cost-per-drink">Escandallo: $0.00/trago</div>
         </div>
 
         <div class="kpi-card">
-            <div class="kpi-title">Margen Bruto (Insumos)</div>
-            <div class="kpi-value" id="kpi-gross-margin">0%</div>
-            <div class="kpi-subtext" id="kpi-gross-profit">Ganancia: $0.00</div>
+            <div class="kpi-title">Gastos Operativos (Personal/Flete)</div>
+            <div class="kpi-value" id="kpi-ops-cost">$0.00</div>
+            <div class="kpi-subtext" id="kpi-staff-count">0 Bartenders</div>
         </div>
 
         <div class="kpi-card highlight">
-            <div class="kpi-title">Utilidad Neta Libre</div>
-            <div class="kpi-value" id="kpi-net-profit" style="color: var(--green-light);">$0.00</div>
-            <div class="kpi-subtext" id="kpi-net-margin">Margen Neto: 0%</div>
+            <div class="kpi-title">Utilidad Neta Libre (Patrón)</div>
+            <div class="kpi-value" id="kpi-net-profit">$0.00</div>
+            <div class="kpi-subtext" id="kpi-net-margin">Margen Neto Libre: 0.0%</div>
         </div>
     </div>
 
     <!-- PARAMETROS DE CONTROL -->
     <div class="section-grid">
         <div class="card">
-            <h2>1. Parámetros del Evento</h2>
+            <h2>1. Cotizador Sincronizado con Sitio Web</h2>
+            
             <div class="form-group">
-                <label for="numCocktails">Cantidad de Cócteles a Servir:</label>
-                <input type="number" id="numCocktails" value="100" min="10" step="5" oninput="calculateAll()">
-                <div class="preset-btns">
-                    <button class="preset-btn" onclick="setCocktails(50)">50 tragos</button>
-                    <button class="preset-btn" onclick="setCocktails(100)">100 tragos</button>
-                    <button class="preset-btn" onclick="setCocktails(150)">150 tragos</button>
-                    <button class="preset-btn" onclick="setCocktails(200)">200 tragos</button>
+                <label>
+                    <span>Número de Invitados:</span>
+                    <strong id="guestsLabel">100 Personas</strong>
+                </label>
+                <input type="range" id="guestsSlider" min="30" max="350" value="100" step="10" oninput="updateGuestsFromSlider(this.value)">
+                <input type="number" id="guestsInput" value="100" min="0" step="5" style="margin-top: 8px;" oninput="updateGuestsFromInput(this.value)">
+            </div>
+
+            <div class="form-group">
+                <label><span>Tragos Estimados por Persona:</span></label>
+                <div class="preset-btns" id="drinksGroup">
+                    <button class="preset-btn" onclick="setDrinks(3, this)">3 Cócteles</button>
+                    <button class="preset-btn active" onclick="setDrinks(4, this)">4 Cócteles</button>
+                    <button class="preset-btn" onclick="setDrinks(5, this)">5 Cócteles</button>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="pricePerDrink">Precio de Venta por Cóctel (MXN):</label>
-                <input type="number" id="pricePerDrink" value="105" min="30" step="5" oninput="calculateAll()">
-                <div class="preset-btns">
-                    <button class="preset-btn" onclick="setPrice(85)">$85 (Económico)</button>
-                    <button class="preset-btn" onclick="setPrice(105)">$105 (Estándar)</button>
-                    <button class="preset-btn" onclick="setPrice(130)">$130 (Premium)</button>
+                <label><span>Horas de Servicio de Barra:</span></label>
+                <div class="preset-btns" id="hoursGroup">
+                    <button class="preset-btn" onclick="setHours(4, this)">4 Horas</button>
+                    <button class="preset-btn active" onclick="setHours(5, this)">5 Horas</button>
+                    <button class="preset-btn" onclick="setHours(6, this)">6 Horas</button>
+                </div>
+            </div>
+
+            <!-- Resumen automático de la cotización web -->
+            <div class="summary-box">
+                <div class="summary-item">
+                    <span>Cócteles Totales a Servir:</span>
+                    <strong id="summaryCocktails">400 Bebidas</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Bartenders Necesarios:</span>
+                    <strong id="summaryStaff">2 Bartenders</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Precio Venta Calculado (Web):</span>
+                    <strong id="summaryPrice" style="color: var(--amber); font-weight:700;">$20,000 MXN</strong>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <h2>2. Gastos Operativos por Evento</h2>
+            <h2>2. Costos Operativos & Manuales</h2>
             <div class="form-group">
-                <label for="opsStaff">Sueldo Bartenders / Personal (MXN):</label>
-                <input type="number" id="opsStaff" value="800" min="0" step="50" oninput="calculateAll()">
+                <label>
+                    <span>Precio Ajustado de Venta (MXN):</span>
+                    <small style="color:var(--text-muted)">Editable si das descuento</small>
+                </label>
+                <input type="number" id="customPriceInput" value="20000" min="0" step="100" oninput="calculateAll()">
             </div>
             <div class="form-group">
-                <label for="opsFreight">Flete / Traslado en Delicias (MXN):</label>
+                <label><span>Pago por Bartender (MXN):</span></label>
+                <input type="number" id="payPerStaff" value="400" min="0" step="50" oninput="calculateAll()">
+            </div>
+            <div class="form-group">
+                <label><span>Flete / Traslado en Delicias (MXN):</span></label>
                 <input type="number" id="opsFreight" value="300" min="0" step="50" oninput="calculateAll()">
             </div>
             <div class="form-group">
-                <label for="opsExtras">Mantenimiento / Hielo Extra (MXN):</label>
+                <label><span>Imprevistos / Hielo Extra (MXN):</span></label>
                 <input type="number" id="opsExtras" value="200" min="0" step="50" oninput="calculateAll()">
             </div>
         </div>
@@ -381,7 +441,7 @@
 
     <!-- TABLA DE INSUMOS -->
     <div class="card">
-        <h2>3. Lista de Compras Dinámica & Precios Base</h2>
+        <h2>3. Lista de Compras Dinámica (Bodega Aurrera)</h2>
         <div class="table-responsive">
             <table>
                 <thead>
@@ -401,23 +461,39 @@
 </div>
 
 <script>
+// Variables Globales de la Cotización
+let selectedDrinksPerGuest = 4;
+let selectedHours = 5;
+let currentGuests = 100;
+
+// Base de datos de insumos OPTIMIZADA (Base real de rendimiento por lote de 100 cócteles)
 const baseItems = [
-    { cat: "Destilados", name: "Tequila Reposado / Blanco (Cabrito/Jimador)", size: "950 ml", price: 230, baseQty: 2, unit: "botellas" },
-    { cat: "Destilados", name: "Sotol Regional / Mezcal", size: "750 ml", price: 280, baseQty: 2, unit: "botellas" },
-    { cat: "Destilados", name: "Ron Blanco (Ej. Bacardí)", size: "750 ml", price: 190, baseQty: 2, unit: "botellas" },
-    { cat: "Destilados", name: "Vodka (Ej. Smirnoff / Karat)", size: "750 ml", price: 185, baseQty: 1, unit: "botellas" },
-    { cat: "Mezcladores", name: "Agua Mineral (Peñafiel / Topo Chico)", size: "2 L", price: 28, baseQty: 6, unit: "piezas" },
-    { cat: "Mezcladores", name: "Refresco Toronja / Cola (Squirt/Coca)", size: "2.5 L", price: 34, baseQty: 4, unit: "piezas" },
-    { cat: "Mezcladores", name: "Jugos (Jumex Único Fresco/Cándido)", size: "1 L", price: 32, baseQty: 5, unit: "piezas" },
-    { cat: "Jarabe/Extras", name: "Jarabe Natural / Granadina", size: "1 L", price: 55, baseQty: 2, unit: "botellas" },
-    { cat: "Perecederos", name: "Limón con semilla", size: "1 kg", price: 38, baseQty: 4, unit: "kg" },
-    { cat: "Perecederos", name: "Naranja / Toronja (Garnish)", size: "1 kg", price: 28, baseQty: 3, unit: "kg" },
-    { cat: "Perecederos", name: "Hierbabuena / Menta fresca", size: "Manojo", price: 20, baseQty: 3, unit: "manojos" },
-    { cat: "Consumibles", name: "Bolsa de Hielo", size: "5 kg", price: 32, baseQty: 6, unit: "bolsas" },
-    { cat: "Desechables", name: "Vaso Plástico Transparente 14-16 oz", size: "Paq. 50 pzas", price: 85, baseQty: 2, unit: "paquetes" },
-    { cat: "Desechables", name: "Popotes biodegradables / Agitadores", size: "Paq. 100 pzas", price: 45, baseQty: 1, unit: "paquetes" },
-    { cat: "Desechables", name: "Servilletas de papel", size: "Paq. 200 pzas", price: 28, baseQty: 1, unit: "paquetes" }
+    { cat: "Destilados", name: "Tequila Reposado / Blanco (Cabrito/Jimador)", size: "950 ml", price: 230, baseQty: 1.5, unit: "botellas" },
+    { cat: "Destilados", name: "Sotol Regional / Mezcal", size: "750 ml", price: 280, baseQty: 1.5, unit: "botellas" },
+    { cat: "Destilados", name: "Ron Blanco (Ej. Bacardí)", size: "750 ml", price: 190, baseQty: 1.5, unit: "botellas" },
+    { cat: "Destilados", name: "Vodka (Ej. Smirnoff / Karat)", size: "750 ml", price: 185, baseQty: 1.0, unit: "botellas" },
+    { cat: "Mezcladores", name: "Agua Mineral (Peñafiel / Topo Chico)", size: "2 L", price: 28, baseQty: 4.0, unit: "piezas" },
+    { cat: "Mezcladores", name: "Refresco Toronja / Cola (Squirt/Coca)", size: "2.5 L", price: 34, baseQty: 3.0, unit: "piezas" },
+    { cat: "Mezcladores", name: "Jugos (Jumex Único Fresco/Cándido)", size: "1 L", price: 32, baseQty: 3.0, unit: "piezas" },
+    { cat: "Jarabe/Extras", name: "Jarabe Natural / Granadina", size: "1 L", price: 55, baseQty: 1.0, unit: "botellas" },
+    { cat: "Perecederos", name: "Limón con semilla", size: "1 kg", price: 38, baseQty: 2.0, unit: "kg" },
+    { cat: "Perecederos", name: "Naranja / Toronja (Garnish)", size: "1 kg", price: 28, baseQty: 1.5, unit: "kg" },
+    { cat: "Perecederos", name: "Hierbabuena / Menta fresca", size: "Manojo", price: 20, baseQty: 2.0, unit: "manojos" },
+    { cat: "Consumibles", name: "Bolsa de Hielo", size: "5 kg", price: 32, baseQty: 4.0, unit: "bolsas" },
+    { cat: "Desechables", name: "Vaso Plástico Transparente 14-16 oz", size: "Paq. 50 pzas", price: 85, baseQty: 2.0, unit: "paquetes" },
+    { cat: "Desechables", name: "Popotes biodegradables / Agitadores", size: "Paq. 100 pzas", price: 45, baseQty: 1.0, unit: "paquetes" },
+    { cat: "Desechables", name: "Servilletas de papel", size: "Paq. 200 pzas", price: 28, baseQty: 1.0, unit: "paquetes" }
 ];
+
+// Formateador de moneda MXN
+const formatCurrency = (val) => {
+    return new Intl.NumberFormat('es-MX', {
+        style: 'currency',
+        currency: 'MXN',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(val);
+};
 
 function initTable() {
     const tbody = document.getElementById('itemsTableBody');
@@ -434,54 +510,120 @@ function initTable() {
         `;
         tbody.appendChild(tr);
     });
-    calculateAll();
+    calculateAll(true);
 }
 
-function setCocktails(val) { document.getElementById('numCocktails').value = val; calculateAll(); }
-function setPrice(val) { document.getElementById('pricePerDrink').value = val; calculateAll(); }
+function updateGuestsFromSlider(val) {
+    currentGuests = parseInt(val) || 0;
+    document.getElementById('guestsInput').value = currentGuests;
+    document.getElementById('guestsLabel').innerText = `${currentGuests} Personas`;
+    calculateAll(true);
+}
 
-function calculateAll() {
-    const numCocktails = parseFloat(document.getElementById('numCocktails').value) || 0;
-    const pricePerDrink = parseFloat(document.getElementById('pricePerDrink').value) || 0;
-    const opsStaff = parseFloat(document.getElementById('opsStaff').value) || 0;
+function updateGuestsFromInput(val) {
+    currentGuests = parseInt(val) || 0;
+    document.getElementById('guestsSlider').value = currentGuests;
+    document.getElementById('guestsLabel').innerText = `${currentGuests} Personas`;
+    calculateAll(true);
+}
+
+function setDrinks(num, btn) {
+    selectedDrinksPerGuest = num;
+    const btns = document.querySelectorAll('#drinksGroup .preset-btn');
+    btns.forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    calculateAll(true);
+}
+
+function setHours(num, btn) {
+    selectedHours = num;
+    const btns = document.querySelectorAll('#hoursGroup .preset-btn');
+    btns.forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    calculateAll(true);
+}
+
+// Fórmula de Venta Web basada en tarifa real de servicio ($50 MXN / trago para 5 hrs)
+function calculateWebPrice(cocktails, hours) {
+    const baseRatePerDrink = 50; 
+    return Math.round(cocktails * baseRatePerDrink * (hours / 5));
+}
+
+function calculateAll(autoUpdatePrice = false) {
+    const totalCocktails = currentGuests * selectedDrinksPerGuest;
+    // 1 bartender por cada 50 personas (0 si no hay invitados)
+    const staffNeeded = currentGuests > 0 ? Math.ceil(currentGuests / 50) : 0;
+    const webCalculatedPrice = calculateWebPrice(totalCocktails, selectedHours);
+
+    // Actualizar Resumen de Cotización Web
+    document.getElementById('summaryCocktails').innerText = `${totalCocktails} Bebidas`;
+    document.getElementById('summaryStaff').innerText = `${staffNeeded} Bartenders`;
+    document.getElementById('summaryPrice').innerText = `${formatCurrency(webCalculatedPrice)} MXN`;
+
+    if (autoUpdatePrice) {
+        document.getElementById('customPriceInput').value = webCalculatedPrice;
+    }
+
+    const finalRevenue = parseFloat(document.getElementById('customPriceInput').value) || 0;
+    const payPerStaff = parseFloat(document.getElementById('payPerStaff').value) || 0;
     const opsFreight = parseFloat(document.getElementById('opsFreight').value) || 0;
     const opsExtras = parseFloat(document.getElementById('opsExtras').value) || 0;
-    
-    const factor = numCocktails / 100;
-    let totalInsumos = 0;
+
+    const totalStaffPay = staffNeeded * payPerStaff;
+    const totalOpsCost = totalStaffPay + opsFreight + opsExtras;
+
+    // Escalar Insumos (Base 100 tragos)
+    const factor = totalCocktails / 100;
+    let totalInsumosCost = 0;
 
     baseItems.forEach((item, index) => {
         const currentPrice = parseFloat(document.getElementById(`price-${index}`).value) || 0;
         let neededQty = item.baseQty * factor;
-        if (item.unit === "botellas" || item.unit === "paquetes" || item.unit === "bolsas") {
+        
+        // Redondeo según tipo de presentación (unidades discretas vs peso)
+        const isDiscreteUnit = ["botellas", "paquetes", "bolsas", "piezas", "manojos"].includes(item.unit);
+        if (isDiscreteUnit) {
             neededQty = Math.ceil(neededQty);
         } else {
             neededQty = Math.round(neededQty * 10) / 10;
         }
 
         const subtotal = neededQty * currentPrice;
-        totalInsumos += subtotal;
+        totalInsumosCost += subtotal;
 
         document.getElementById(`qty-${index}`).innerText = `${neededQty} ${item.unit}`;
-        document.getElementById(`subtotal-${index}`).innerText = `$${subtotal.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        document.getElementById(`subtotal-${index}`).innerText = formatCurrency(subtotal);
     });
 
-    const totalRevenue = numCocktails * pricePerDrink;
-    const costPerDrink = numCocktails > 0 ? (totalInsumos / numCocktails) : 0;
-    const grossProfit = totalRevenue - totalInsumos;
-    const grossMargin = totalRevenue > 0 ? (grossProfit / totalRevenue) * 100 : 0;
-    const totalCost = totalInsumos + opsStaff + opsFreight + opsExtras;
-    const netProfit = totalRevenue - totalCost;
-    const netMargin = totalRevenue > 0 ? (netProfit / totalRevenue) * 100 : 0;
+    const costPerDrink = totalCocktails > 0 ? (totalInsumosCost / totalCocktails) : 0;
+    const netProfit = finalRevenue - totalInsumosCost - totalOpsCost;
+    const netMargin = finalRevenue > 0 ? (netProfit / finalRevenue) * 100 : 0;
+    const pricePerDrinkClient = totalCocktails > 0 ? (finalRevenue / totalCocktails) : 0;
 
-    document.getElementById('kpi-revenue').innerText = `$${totalRevenue.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
-    document.getElementById('kpi-price-per-drink').innerText = `$${pricePerDrink.toFixed(2)} por trago`;
-    document.getElementById('kpi-insumos-cost').innerText = `$${totalInsumos.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
-    document.getElementById('kpi-cost-per-drink').innerText = `Escandallo: $${costPerDrink.toFixed(2)}/trago`;
-    document.getElementById('kpi-gross-margin').innerText = `${grossMargin.toFixed(1)}%`;
-    document.getElementById('kpi-gross-profit').innerText = `Ganancia: $${grossProfit.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
-    document.getElementById('kpi-net-profit').innerText = `$${netProfit.toLocaleString('es-MX', {minimumFractionDigits: 2})}`;
-    document.getElementById('kpi-net-margin').innerText = `Margen Neto Libre: ${netMargin.toFixed(1)}%`;
+    // Actualizar Dashboard KPI
+    document.getElementById('kpi-revenue').innerText = formatCurrency(finalRevenue);
+    document.getElementById('kpi-price-per-drink').innerText = `${formatCurrency(pricePerDrinkClient)}/trago cobrado`;
+
+    document.getElementById('kpi-insumos-cost').innerText = formatCurrency(totalInsumosCost);
+    document.getElementById('kpi-cost-per-drink').innerText = `Escandallo: ${formatCurrency(costPerDrink)}/trago`;
+
+    document.getElementById('kpi-ops-cost').innerText = formatCurrency(totalOpsCost);
+    document.getElementById('kpi-staff-count').innerText = `${staffNeeded} Bartenders (${formatCurrency(totalStaffPay)})`;
+
+    // Asignar Valores y Colores en Utilidad Neta (Verde para >= 0, Rojo para < 0)
+    const netProfitEl = document.getElementById('kpi-net-profit');
+    const netMarginEl = document.getElementById('kpi-net-margin');
+
+    netProfitEl.innerText = formatCurrency(netProfit);
+    netMarginEl.innerText = `Margen Neto Libre: ${netMargin.toFixed(1)}%`;
+
+    if (netProfit < 0) {
+        netProfitEl.style.color = "var(--red-light)";
+        netMarginEl.style.color = "var(--red-light)";
+    } else {
+        netProfitEl.style.color = "var(--green-light)";
+        netMarginEl.style.color = "var(--green-light)";
+    }
 }
 
 // Service Worker & PWA Logic
