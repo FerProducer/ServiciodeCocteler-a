@@ -1,6 +1,6 @@
 {
-  "name": "Ámbar & Hielo Admin",
-  "short_name": "Ámbar Admin",
+  "name": "AURA Admin",
+  "short_name": "AURA Admin",
   "description": "Calculadora de Costos y Márgenes de Eventos",
   "start_url": "./index.html",
   "display": "standalone",
