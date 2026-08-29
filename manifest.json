@@ -15,7 +15,7 @@
       "purpose": "any maskable"
     },
     {
-      "src": "./icon-512.png", 
+      "src": "https://raw.githubusercontent.com/FerProducer/ServiciodeCocteler-a/refs/heads/main/ICON.png", 
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
